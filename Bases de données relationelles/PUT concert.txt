@@ -1,0 +1,221 @@
+PUT concert
+{
+  "mappings": {
+    "dynamic":"strict",
+    "properties": {
+      "Jour": {
+        "type": "date",
+        "format": "date"
+      },
+      "Heure": {
+        "type": "date",
+        "format": "hour_minute"
+      },
+      "Artiste": {
+        "type": "text"
+      },
+      "Salle": {
+        "type": "object",
+        "properties":{
+          "Nom": {
+            "type": "text"
+          },
+          "Adresse": {
+            "type": "text"
+          },
+          "Capacité": {
+            "type": "integer"
+          }
+        }
+      },
+      "Spectacle": {
+        "type": "object",
+        "properties":{
+          "Titre": {
+            "type": "text"
+          },
+          "DateDebut": {
+            "type": "date",
+            "format": "date"
+          },
+          "Durée": {
+            "type": "integer"
+          }
+        }
+      },
+      "Billet": {
+        "type": "object",
+        "properties":{
+          "Num_place": {
+            "type": "integer"
+          },
+          "Vendu":{
+            "type":"boolean"
+          },
+          "Date_Vente": {
+            "type": "date",
+            "format": "date"
+          },
+          "Catégorie": {
+            "type": "integer"
+          },
+          "Prix":{
+            "type": "integer"
+          },
+          "MoyenPaiement":{
+            "type":"text"
+          }
+        }
+      }
+    }
+  }
+}
+
+GET concert/_mapping
+
+POST concert/_doc/1
+{"Artiste":"Mireille",
+"Billet":{
+  "Catégorie":1,
+  "Vendu":true,
+  "Num_place":1
+  },
+"Heure":"18:00",
+"Jour":"21-01-05",
+"Salle":{
+  "Nom":"Cigale",
+  "Adresse":"Paris",
+  "Capacité":2000
+  },
+"Spectacle":{
+  "DateDebut":"22-02-20",
+  "Durée":2,
+  "Titre":"Tournée"
+  }
+}
+
+
+POST concert/_doc/3
+{"Artiste":"Yves",
+"Billet":{
+  "Catégorie":1,
+  "Vendu":true,
+  "Date_Vente":"20-11-30",
+  "Num_place":3
+  },
+"Heure":"20:00",
+"Jour":"22-01-27",
+"Salle":{
+  "Nom":"Animatis",
+  "Adresse":"Issoire",
+  "Capacité":3
+  },
+"Spectacle":{
+  "DateDebut":"22-01-27",
+  "Durée":1,
+  "Titre":"Anniv"
+  }
+
+
+
+
+GET concert/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"match": {
+          "Artiste": "Mireille"
+        }},
+        {
+          "match": {
+            "Salle.Nom":"Cigale"
+          }
+        }
+        ]
+    }
+  },
+  "fields" : [
+        "Jour"
+    ],
+    "_source":false
+}
+
+
+
+GET concert/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "sort":[
+    {"Salle.Capacité": {
+      "order":"desc"
+    }}],
+  "size": 1,
+  "fields" : [
+        "Salle.Nom"
+    ],
+    "_source":false
+}
+
+
+
+
+GET concert/_search
+{
+  "query": {
+    "bool": {
+      "must_not": [
+        {"match": {
+          "Salle.Nom": "Cigale"
+        }}
+        ]
+    }
+  },
+  "fields" : [
+        "Artiste"
+    ],
+    "_source":false
+}
+
+
+
+GET concert/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"match": {
+          "Billet.Vendu": true
+        }}
+        ]
+    }
+  },
+  "fields" : [
+        "id",
+        "Artiste"
+    ],
+    "_source":false
+}}
+
+
+
+
+GET concert/_doc/_count
+{
+  "query": {
+    "bool": {
+      "must": [
+        {"match": {
+          "Billet.Catégorie": 1
+        }},
+        {
+          "match": {
+            "Billet.Date_Vente":"20-11-30"
+          }
+        }
+        ]
+    }
+  }
+}
